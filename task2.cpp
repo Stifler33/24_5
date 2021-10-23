@@ -6,6 +6,7 @@
 struct strBirthday{
     std::string name;
     std::tm day;
+    std::time_t day_t;
 };
 #define INIT_DAY \
 std::time_t init = std::time(nullptr);\
@@ -14,13 +15,21 @@ baseDate.back().day = *std::localtime(&init);
 
 int minMon(std::vector<strBirthday> &date, std::tm &curDate){
     int min = 0;
-    int curMon = curDate.tm_mon;
-    for (auto &a : date){
-        int minA = abs(curMon - a.day.tm_mon);
-        for (auto &b : date){
-            int minB = abs(curMon - b.day.tm_mon);
-            if (minB < minA) min = b.day.tm_mon;
-        }
+    std::vector<std::time_t> dayVec;
+    std::vector<std::tm> dayPtr;
+    std::time_t curTime_t;
+    curTime_t = std::mktime(&curDate);
+    int curYear = curDate.tm_year;
+    for (auto & ptr : date){
+        dayPtr.push_back(ptr.day);
+        dayPtr.back().tm_year = curYear;
+        dayPtr.back().tm_hour = 0;
+        dayPtr.back().tm_min = 0;
+        dayPtr.back().tm_sec = 0;
+        dayVec.push_back(std::mktime(&dayPtr.back()));
+    }
+    for (auto &b : dayVec){
+        std::cout << (long long)std::difftime(b,curTime_t) << std::endl;
     }
     return min;
 }
@@ -37,6 +46,7 @@ int main() {
             streamDay >> baseDate.back().name;
             INIT_DAY
             streamDay >> std::get_time(&baseDate.back().day, FORMAT_DATE);
+            baseDate.back().day_t = std::mktime(&baseDate.back().day);
         }
         if (false) {
             for (auto &i: baseDate) {
@@ -53,6 +63,6 @@ int main() {
             std::cout << baseDay.name + " happy birthday\n";
         }
     }
-    std::cout << minMon(baseDate, curDatePtr) + 1;
+    std::cout << minMon(baseDate, curDatePtr);
     return 0;
 }
