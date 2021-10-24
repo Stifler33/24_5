@@ -7,31 +7,25 @@ struct strBirthday{
     std::string name;
     std::tm day;
     std::time_t day_t;
+    std::time_t diff;
 };
 #define INIT_DAY \
 std::time_t init = std::time(nullptr);\
 baseDate.back().day = *std::localtime(&init);
 #define FORMAT_DATE "%Y.%m.%d"
 
-int minMon(std::vector<strBirthday> &date, std::tm &curDate){
+void minMon(std::vector<strBirthday> &date, std::tm &curDate){
     int min = 0;
-    std::vector<std::time_t> dayVec;
-    std::vector<std::tm> dayPtr;
     std::time_t curTime_t;
     curTime_t = std::mktime(&curDate);
     int curYear = curDate.tm_year;
     for (auto & ptr : date){
-        dayPtr.push_back(ptr.day);
-        dayPtr.back().tm_year = curYear;
-        dayPtr.back().tm_hour = 0;
-        dayPtr.back().tm_min = 0;
-        dayPtr.back().tm_sec = 0;
-        dayVec.push_back(std::mktime(&dayPtr.back()));
+        std::tm curTM = ptr.day;
+        curTM.tm_year = curYear;
+        std::time_t newTime = std::mktime(&curTM);
+        ptr.diff = std::difftime(newTime, curTime_t);
+        std::cout << ptr.diff << std::endl;
     }
-    for (auto &b : dayVec){
-        std::cout << (long long)std::difftime(b,curTime_t) << std::endl;
-    }
-    return min;
 }
 int main() {
     strBirthday birthday;
@@ -63,6 +57,18 @@ int main() {
             std::cout << baseDay.name + " happy birthday\n";
         }
     }
-    std::cout << minMon(baseDate, curDatePtr);
+    minMon(baseDate, curDatePtr);
+    std::string name;
+    std::time_t min;
+    for (auto a : baseDate){
+        min = a.diff;
+        for (auto b : baseDate){
+            if (min > b.diff) {
+                min = b.diff;
+                name = b.name;
+            }
+        }
+    }
+    std::cout << name;
     return 0;
 }
