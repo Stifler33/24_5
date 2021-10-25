@@ -15,7 +15,6 @@ baseDate.back().day = *std::localtime(&init);
 #define FORMAT_DATE "%Y.%m.%d"
 
 void minMon(std::vector<strBirthday> &date, std::tm &curDate){
-    int min = 0;
     std::time_t curTime_t;
     curTime_t = std::mktime(&curDate);
     int curYear = curDate.tm_year;
@@ -24,7 +23,6 @@ void minMon(std::vector<strBirthday> &date, std::tm &curDate){
         curTM.tm_year = curYear;
         std::time_t newTime = std::mktime(&curTM);
         ptr.diff = std::difftime(newTime, curTime_t);
-        std::cout << ptr.diff << std::endl;
     }
 }
 int main() {
@@ -49,26 +47,46 @@ int main() {
             }
         }
     }else if (typeEnterDate == "manual") {
+        std::string name;
+        while(name != "end") {
+            std::cout << "Enter name\n";
+            std::cin >> name;
+            if (name == "end") continue;
+            baseDate.push_back(birthday);
+            baseDate.back().name = name;
+            std::cout << "Enter happy birthday\n";
+            std::cin >> std::get_time(&baseDate.back().day, FORMAT_DATE);
+        }
     }
     std::time_t currentDate = std::time(nullptr);
     std::tm curDatePtr = *std::localtime(&currentDate);
-    for (auto &baseDay : baseDate){
-        if (baseDay.day.tm_mon == curDatePtr.tm_mon && baseDay.day.tm_mday == curDatePtr.tm_mday){
-            std::cout << baseDay.name + " happy birthday\n";
-        }
-    }
     minMon(baseDate, curDatePtr);
-    std::string name;
     std::time_t min;
+    bool positive = false;
     for (auto a : baseDate){
+        if (a.diff > 0 && !positive) {
+            positive = true;
+            min = a.diff;
+        }
+        if (a.diff < 0 && positive) continue;
         min = a.diff;
         for (auto b : baseDate){
+            if (b.diff < 0 && positive) continue;
             if (min > b.diff) {
                 min = b.diff;
-                name = b.name;
             }
         }
     }
-    std::cout << name;
+    bool foundToday = false;
+    for (auto today : baseDate){
+        if (today.diff == 0){
+            std::cout << "Happy birthday " << today.name << std::endl;
+            foundToday = true;
+        }
+    }
+    if (foundToday) return 0;
+    for (auto near : baseDate){
+        if (near.diff == min) std::cout << "Near happy birthday " << std::put_time(&near.day, "%m/%d") << " " << near.name << std::endl;
+    }
     return 0;
 }
