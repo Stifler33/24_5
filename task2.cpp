@@ -49,6 +49,16 @@ int main() {
             }
         }
     }else if (typeEnterDate == "manual") {
+        std::string name;
+        while(name != "end") {
+            std::cout << "Enter name\n";
+            std::cin >> name;
+            if (name == "end") continue;
+            baseDate.push_back(birthday);
+            baseDate.back().name = name;
+            std::cout << "Enter happy birthday\n";
+            std::cin >> std::get_time(&baseDate.back().day, FORMAT_DATE);
+        }
     }
     std::time_t currentDate = std::time(nullptr);
     std::tm curDatePtr = *std::localtime(&currentDate);
